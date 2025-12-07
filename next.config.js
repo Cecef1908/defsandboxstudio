@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   
@@ -30,6 +31,13 @@ const nextConfig = {
       ...config.watchOptions,
       ignored: ['**/node_modules', '**/_old-app/**'],
     };
+
+    // Ajouter les aliases webpack pour corriger la résolution des modules
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname),
+    };
+
     return config;
   },
 };
