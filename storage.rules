@@ -1,0 +1,123 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ============================================================================
+    // HELPER FUNCTIONS
+    // ============================================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isValidImage() {
+      return request.resource.size < 2 * 1024 * 1024 && // 2MB max
+             request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidFile() {
+      return request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+    
+    function isValidVideo() {
+      return request.resource.size < 50 * 1024 * 1024 && // 50MB max
+             request.resource.contentType.matches('video/.*');
+    }
+    
+    // ============================================================================
+    // AVATARS (User profile pictures)
+    // ============================================================================
+    
+    match /avatars/{userId}/{fileName} {
+      // Tout le monde peut lire les avatars
+      allow read: if isAuthenticated();
+      
+      // Seul le propriétaire peut uploader/modifier son avatar
+      allow write: if isAuthenticated() && 
+                     request.auth.uid == userId && 
+                     isValidImage();
+      
+      // Seul le propriétaire peut supprimer son avatar
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============================================================================
+    // CONTENTS (Media plan creative assets)
+    // ============================================================================
+    
+    match /contents/{planId}/{fileName} {
+      // Tout utilisateur authentifié peut lire
+      allow read: if isAuthenticated();
+      
+      // Tout utilisateur authentifié peut uploader des contenus
+      allow write: if isAuthenticated() && 
+                     (isValidImage() || isValidVideo() || isValidFile());
+      
+      // Tout utilisateur authentifié peut supprimer
+      allow delete: if isAuthenticated();
+    }
+    
+    // ============================================================================
+    // AGENCY ASSETS (Logos, branding, etc.)
+    // ============================================================================
+    
+    match /agency_assets/{fileName} {
+      // Tout utilisateur authentifié peut lire
+      allow read: if isAuthenticated();
+      
+      // Seuls les utilisateurs authentifiés peuvent uploader
+      // (À restreindre aux admins si nécessaire via Firestore rules check)
+      allow write: if isAuthenticated() && isValidImage();
+      
+      // Seuls les utilisateurs authentifiés peuvent supprimer
+      allow delete: if isAuthenticated();
+    }
+    
+    // ============================================================================
+    // LOGOS (Agency logos library)
+    // ============================================================================
+    
+    match /logos/{logoId}/{fileName} {
+      // Tout utilisateur authentifié peut lire
+      allow read: if isAuthenticated();
+      
+      // Tout utilisateur authentifié peut uploader
+      allow write: if isAuthenticated() && isValidImage();
+      
+      // Tout utilisateur authentifié peut supprimer
+      allow delete: if isAuthenticated();
+    }
+    
+    // ============================================================================
+    // EXPORTS (Generated reports, exports, etc.)
+    // ============================================================================
+    
+    match /exports/{userId}/{fileName} {
+      // Seul le propriétaire peut lire ses exports
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Seul le propriétaire peut créer ses exports
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Seul le propriétaire peut supprimer ses exports
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============================================================================
+    // TEMP (Temporary uploads)
+    // ============================================================================
+    
+    match /temp/{userId}/{fileName} {
+      // Seul le propriétaire peut lire
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Seul le propriétaire peut uploader
+      allow write: if isAuthenticated() && 
+                     request.auth.uid == userId && 
+                     isValidFile();
+      
+      // Seul le propriétaire peut supprimer
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

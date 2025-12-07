@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* --- CONFIGURATION IMPRESSION PDF "CLIENT READY" --- */
+@media print {
+  /* 1. Configuration de la page A4 */
+  @page {
+    size: A4;
+    margin: 10mm; /* Marges propres (1cm) pour éviter que l'imprimante ne coupe */
+  }
+
+  /* 2. Forcer les couleurs et la largeur */
+  body {
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important; /* Chrome/Safari/Edge */
+    print-color-adjust: exact !important; /* Firefox */
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  /* 3. Masquer l'interface inutile */
+  .no-print, header, button, .scrollbar-hide {
+    display: none !important;
+  }
+
+  /* 4. ANTI-COUPURE : Empêcher les blocs de se casser entre deux pages */
+  /* On cible les classes Tailwind utilisées pour vos cartes */
+  .rounded-3xl, .rounded-2xl, .rounded-xl, .border, .shadow-sm, .shadow-xl {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 20px !important; /* Espace de sécurité */
+  }
+  
+  /* 5. FIX TABLEAUX : Empêcher le texte d'être coupé/caché */
+  .overflow-x-auto, .overflow-hidden {
+    overflow: visible !important; /* Désactive le scroll, montre tout */
+  }
+  
+  table {
+    width: 100% !important;
+    table-layout: auto !important; /* Laisse le navigateur gérer la largeur des colonnes */
+  }
+
+  th, td {
+    white-space: normal !important; /* Force le retour à la ligne */
+    word-wrap: break-word !important; /* Coupe les mots trop longs si nécessaire */
+    overflow: visible !important;
+    font-size: 10pt !important; /* Taille lisible sur papier */
+  }
+  
+  /* Empêcher une ligne de tableau d'être coupée en deux horizontalement */
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 6. Mise en page du conteneur principal */
+  main {
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  
+  /* Reset des conteneurs flex/grid qui pourraient poser problème */
+  .flex-col {
+    display: block !important; /* Souvent plus sûr pour le print vertical */
+  }
+  
+  /* On rétablit le flex/grid uniquement pour les contenus internes (graphiques, kpi) */
+  .grid, .flex-row {
+    display: flex !important; /* Ou grid */
+  }
+}

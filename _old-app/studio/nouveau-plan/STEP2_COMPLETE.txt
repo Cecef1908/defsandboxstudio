@@ -1,0 +1,247 @@
+// Code complet pour renderStep2 - à copier manuellement
+const renderStep2 = () => {
+    const availableChannels = Array.from(new Set(canaux.map(c => c.id || c.name.toLowerCase()))).map(id => {
+        const c = canaux.find(ca => ca.id === id);
+        return { id, name: c ? c.name : id.charAt(0).toUpperCase() + id.slice(1) };
+    });
+    availableChannels.push({id: 'autre', name: 'Autre'});
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+            {/* Benchmarks éditables */}
+            <div className="bg-[#1E293B] border border-slate-800 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <Target size={18} className="text-indigo-400" /> Benchmarks & Taux
+                </h3>
+                <div className="grid grid-cols-4 gap-4">
+                    <div>
+                        <label className="block text-xs text-slate-400 uppercase font-bold mb-2">CTR Display (%)</label>
+                        <input 
+                            type="number" step="0.1"
+                            value={planData.benchmarks.ctrDisplay}
+                            onChange={(e) => setPlanData({...planData, benchmarks: { ...planData.benchmarks, ctrDisplay: parseFloat(e.target.value) || 0 }})}
+                            className="w-full bg-[#0F172A] border border-slate-700 rounded-lg p-2 text-white focus:border-indigo-500 outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-slate-400 uppercase font-bold mb-2">CTR Search (%)</label>
+                        <input 
+                            type="number" step="0.1"
+                            value={planData.benchmarks.ctrSearch}
+                            onChange={(e) => setPlanData({...planData, benchmarks: { ...planData.benchmarks, ctrSearch: parseFloat(e.target.value) || 0 }})}
+                            className="w-full bg-[#0F172A] border border-slate-700 rounded-lg p-2 text-white focus:border-indigo-500 outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-slate-400 uppercase font-bold mb-2">VTR Vidéo (%)</label>
+                        <input 
+                            type="number" step="0.1"
+                            value={planData.benchmarks.vtrVideo}
+                            onChange={(e) => setPlanData({...planData, benchmarks: { ...planData.benchmarks, vtrVideo: parseFloat(e.target.value) || 0 }})}
+                            className="w-full bg-[#0F172A] border border-slate-700 rounded-lg p-2 text-white focus:border-indigo-500 outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-slate-400 uppercase font-bold mb-2">Taux Conv. (%)</label>
+                        <input 
+                            type="number" step="0.1"
+                            value={planData.benchmarks.convRate}
+                            onChange={(e) => setPlanData({...planData, benchmarks: { ...planData.benchmarks, convRate: parseFloat(e.target.value) || 0 }})}
+                            className="w-full bg-[#0F172A] border border-slate-700 rounded-lg p-2 text-white focus:border-indigo-500 outline-none"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* KPIs en temps réel */}
+            <div className="grid grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/30 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Eye size={16} className="text-blue-400" />
+                        <div className="text-xs text-blue-300 uppercase font-bold">Impressions</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{totalKPIs.impressions.toLocaleString()}</div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/30 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <MousePointerClick size={16} className="text-purple-400" />
+                        <div className="text-xs text-purple-300 uppercase font-bold">Clics</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{totalKPIs.clics.toLocaleString()}</div>
+                </div>
+                <div className="bg-gradient-to-br from-pink-500/10 to-pink-600/5 border border-pink-500/30 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <PlayCircle size={16} className="text-pink-400" />
+                        <div className="text-xs text-pink-300 uppercase font-bold">Vues Vidéo</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{totalKPIs.vues.toLocaleString()}</div>
+                </div>
+                <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/30 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Target size={16} className="text-emerald-400" />
+                        <div className="text-xs text-emerald-300 uppercase font-bold">Conversions</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{totalKPIs.conversions.toLocaleString()}</div>
+                </div>
+            </div>
+
+            {/* Insertions */}
+            <div className="bg-[#1E293B] border border-slate-800 rounded-xl p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <DollarSign size={18} className="text-indigo-400" /> Plan Média
+                    </h3>
+                    <button 
+                        onClick={handleAddInsertion}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/20"
+                    >
+                        <Plus size={16} /> Ajouter
+                    </button>
+                </div>
+
+                <div className="space-y-3">
+                    {insertions.length === 0 && (
+                        <div className="text-center py-8 border-2 border-dashed border-slate-700 rounded-xl text-slate-500">
+                            <p className="text-sm">Aucune insertion</p>
+                        </div>
+                    )}
+
+                    {insertions.map((ins, idx) => (
+                        <div key={ins.id} className="bg-[#0F172A] border border-slate-700 rounded-xl p-4">
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs font-bold">
+                                        {idx + 1}
+                                    </div>
+                                    <span className="text-sm font-bold text-white">{ins.support} - {ins.format}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => handleInsertionChange(ins.id, 'showDetails', !ins.showDetails)}
+                                        className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
+                                    >
+                                        <Settings size={14} /> Détails
+                                    </button>
+                                    <button onClick={() => handleDeleteInsertion(ins.id)} className="text-slate-500 hover:text-red-400 transition-colors">
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-3 mb-3">
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Canal</label>
+                                    <select 
+                                        value={availableChannels.find(c => c.id === ins.support.toLowerCase()) ? ins.support.toLowerCase() : 'autre'}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val !== 'autre') handleInsertionChange(ins.id, 'support', val);
+                                        }}
+                                        className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                    >
+                                        {availableChannels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Format</label>
+                                    <select 
+                                        value={formats.find(f => f.id === ins.format) ? ins.format : 'autre'}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val !== 'autre') handleInsertionChange(ins.id, 'format', val);
+                                        }}
+                                        className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                    >
+                                        <option value="" disabled>Choisir</option>
+                                        {formats
+                                            .filter(f => f.channelId === ins.support.toLowerCase() || ins.support === 'Digital' || !ins.support)
+                                            .map(f => <option key={f.id} value={f.id}>{f.name}</option>)
+                                        }
+                                        <option value="autre">Autre...</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Modèle</label>
+                                    <select 
+                                        value={ins.modeleAchat}
+                                        onChange={(e) => handleInsertionChange(ins.id, 'modeleAchat', e.target.value)}
+                                        className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                    >
+                                        <option value="CPM">CPM</option>
+                                        <option value="CPC">CPC</option>
+                                        <option value="CPV">CPV</option>
+                                        <option value="Forfait">Forfait</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Coût Unitaire</label>
+                                    <input 
+                                        type="number" value={ins.coutUnitaire}
+                                        onChange={(e) => handleInsertionChange(ins.id, 'coutUnitaire', parseFloat(e.target.value) || 0)}
+                                        className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Quantité</label>
+                                    <input 
+                                        type="number" value={ins.quantiteAchetee}
+                                        onChange={(e) => handleInsertionChange(ins.id, 'quantiteAchetee', parseInt(e.target.value) || 0)}
+                                        className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold text-emerald-500">Budget HT</label>
+                                    <input 
+                                        type="number" value={ins.coutEstime} readOnly
+                                        className="w-full bg-[#1E293B]/50 border border-emerald-500/30 rounded px-2 py-1.5 text-xs text-emerald-400 font-bold outline-none cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Onglet Détails collapsible */}
+                            {ins.showDetails && (
+                                <div className="mt-3 pt-3 border-t border-slate-700 space-y-3 animate-in slide-in-from-top-2">
+                                    <div>
+                                        <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Ciblage & Notes</label>
+                                        <textarea 
+                                            value={ins.targeting}
+                                            onChange={(e) => handleInsertionChange(ins.id, 'targeting', e.target.value)}
+                                            className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-2 text-xs text-white focus:border-indigo-500 outline-none resize-none"
+                                            rows={2}
+                                            placeholder="Géo, Audience, Mots-clés..."
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Date début (optionnel)</label>
+                                            <input 
+                                                type="date"
+                                                value={ins.dateDebut || ''}
+                                                onChange={(e) => handleInsertionChange(ins.id, 'dateDebut', e.target.value)}
+                                                className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] text-slate-500 mb-1 uppercase font-bold">Date fin (optionnel)</label>
+                                            <input 
+                                                type="date"
+                                                value={ins.dateFin || ''}
+                                                onChange={(e) => handleInsertionChange(ins.id, 'dateFin', e.target.value)}
+                                                className="w-full bg-[#1E293B] border border-slate-600 rounded px-2 py-1.5 text-xs text-white focus:border-indigo-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
